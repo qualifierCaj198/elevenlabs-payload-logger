@@ -13,17 +13,19 @@ def capture_payload():
         data = request.get_json(force=True)
         timestamp = datetime.utcnow().isoformat()
 
-        # Log to console (Render logs)
-        logging.info("📥 Webhook received at %s: %s", timestamp, json.dumps(data, indent=2))
+        # Log to Render logs
+        logging.info("📥 Webhook received at %s:\n%s", timestamp, json.dumps(data, indent=2))
 
-        # Optional: Save to file (useful for local testing)
+        # Optional: save locally (only works when running locally)
         with open("latest_payload.json", "w") as f:
             json.dump(data, f, indent=2)
 
         return jsonify({"status": "received"}), 200
+
     except Exception as e:
         logging.exception("❌ Failed to process payload")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
